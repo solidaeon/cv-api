@@ -2,6 +2,7 @@ package users
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/solidaeon/cv-api/domains/users"
@@ -29,5 +30,18 @@ func CreateUser(c *gin.Context) {
 }
 
 func GetUser(c *gin.Context) {
-	c.String(http.StatusNotImplemented, "implement me!")
+	userId, userErr := strconv.ParseInt(c.Param("user_id"), 10, 64)
+	if userErr != nil {
+		err := errors.NewBadRequestError("invalid user id")
+		c.JSON(err.Status, userErr)
+	}
+
+	user, getErr := services.GetUser(userId)
+
+	if getErr != nil {
+		c.JSON(getErr.Status, getErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
 }
