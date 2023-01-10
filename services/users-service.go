@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/solidaeon/cv-api/domains/users"
 	"github.com/solidaeon/cv-api/utils/errors"
 )
@@ -33,6 +35,9 @@ func UpdateUser(isPartial bool, user users.User) (*users.User, *errors.RestErr) 
 
 	userOnRecord, err := GetUser(user.Id)
 
+	fmt.Println("on record")
+	fmt.Println(userOnRecord)
+
 	if err != nil {
 		return nil, err
 	}
@@ -47,10 +52,14 @@ func UpdateUser(isPartial bool, user users.User) (*users.User, *errors.RestErr) 
 		if user.Email != "" {
 			userOnRecord.Email = user.Email
 		}
+		if user.Status != "" {
+			userOnRecord.Status = user.Status
+		}
 	} else {
 		userOnRecord.FirstName = user.FirstName
 		userOnRecord.LastName = user.LastName
 		userOnRecord.Email = user.Email
+		userOnRecord.Status = user.Status
 	}
 
 	if err := userOnRecord.Validate(); err != nil {
@@ -73,4 +82,9 @@ func DeleteUser(user users.User) *errors.RestErr {
 	return nil
 }
 
-func FindUser() {}
+func FindByStatus(status string) ([]users.User, *errors.RestErr) {
+
+	dao := &users.User{}
+
+	return dao.FindByStatus(status)
+}
