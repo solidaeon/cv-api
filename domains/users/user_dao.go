@@ -7,11 +7,13 @@ import (
 	"github.com/solidaeon/cv-api/datasources/mysql/users_db"
 	"github.com/solidaeon/cv-api/utils/date_utils"
 	"github.com/solidaeon/cv-api/utils/errors"
+	"github.com/solidaeon/cv-api/utils/mysql_utils"
 )
 
 const (
 	insertStmt = "insert into users_db values(?, ?, ?, ?, ?)"
 	getStmt    = "select * from users_db where id = ?"
+	updateStmt = "update users_db set first_name=?, last_name=?, email=? where id=?"
 )
 
 var (
@@ -58,7 +60,7 @@ func (user *User) Save() *errors.RestErr {
 	insertResult, err := stmt.Exec(user.Id, user.FirstName, user.LastName, user.Email, user.DateCreated)
 
 	if err != nil {
-		return errors.NewInternalServerError(fmt.Sprintf("error persisting user. %s", err.Error()))
+		return mysql_utils.ParseError(err)
 	}
 
 	userId, err := insertResult.LastInsertId()
@@ -68,6 +70,27 @@ func (user *User) Save() *errors.RestErr {
 	}
 
 	user.Id = userId
+
+	return nil
+}
+
+func (user *User) Update() *errors.RestErr {
+
+	stmt, err := users_db.Client.Prepare(updateStmt)
+
+	if err != nil {
+		return errors.NewInternalServerError(err.Error())
+	}
+
+	defer stmt.Close()
+
+	user.DateCreated = date_utils.GetNowString()
+
+	_, err = stmt.Exec(user.FirstName, user.LastName, user.Email, user.Id)
+
+	if err != nil {
+		return mysql_utils.ParseError(err)
+	}
 
 	return nil
 }
