@@ -14,6 +14,7 @@ const (
 	insertStmt = "insert into users_db values(?, ?, ?, ?, ?)"
 	getStmt    = "select * from users_db where id = ?"
 	updateStmt = "update users_db set first_name=?, last_name=?, email=? where id=?"
+	deleteStmt = "delete from users_db where id=?"
 )
 
 var (
@@ -87,6 +88,25 @@ func (user *User) Update() *errors.RestErr {
 	user.DateCreated = date_utils.GetNowString()
 
 	_, err = stmt.Exec(user.FirstName, user.LastName, user.Email, user.Id)
+
+	if err != nil {
+		return mysql_utils.ParseError(err)
+	}
+
+	return nil
+}
+
+func (user *User) Delete() *errors.RestErr {
+
+	stmt, err := users_db.Client.Prepare(deleteStmt)
+
+	if err != nil {
+		return errors.NewInternalServerError(err.Error())
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(user.Id)
 
 	if err != nil {
 		return mysql_utils.ParseError(err)

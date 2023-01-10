@@ -64,4 +64,13 @@ func UpdateUser(isPartial bool, user users.User) (*users.User, *errors.RestErr) 
 	return userOnRecord, nil
 }
 
+func DeleteUser(user users.User) *errors.RestErr {
+
+	if err := user.Delete(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func FindUser() {}

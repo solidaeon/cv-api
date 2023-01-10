@@ -72,3 +72,24 @@ func UpdateUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 }
+
+func DeleteUser(c *gin.Context) {
+	userId, userErr := strconv.ParseInt(c.Param("user_id"), 10, 64)
+	if userErr != nil {
+		err := errors.NewBadRequestError("invalid user id")
+		c.JSON(err.Status, userErr)
+	}
+
+	var user users.User
+
+	user.Id = userId
+
+	err := services.DeleteUser(user)
+
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, "{}")
+}
