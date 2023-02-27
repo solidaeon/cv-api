@@ -11,11 +11,12 @@ import (
 )
 
 const (
-	insertStmt       = "insert into users_db (id, first_name, last_name, email, status, date_created) values(?, ?, ?, ?, ?, ?)"
-	getStmt          = "select * from users_db where id = ?"
-	updateStmt       = "update users_db set first_name=?, last_name=?, email=?, status=? where id=?"
-	deleteStmt       = "delete from users_db where id=?"
-	findByStatusStmt = "select id, first_name, last_name, email from users_db where status=?"
+	users_table = "users"
+	insertStmt       = "insert into " + users_table + " (id, first_name, last_name, email, status, date_created) values(?, ?, ?, ?, ?, ?)"
+	getStmt          = "select * from " + users_table + " where id = ?"
+	updateStmt       = "update " + users_table + " set first_name=?, last_name=?, email=?, status=? where id=?"
+	deleteStmt       = "delete from " + users_table + " where id=?"
+	findByStatusStmt = "select id, first_name, last_name, email from " + users_table + " where status=?"
 )
 
 var (
@@ -140,6 +141,10 @@ func (user *User) FindByStatus(status string) ([]User, *errors.RestErr) {
 			return nil, mysql_utils.ParseError(err)
 		}
 		results = append(results, user)
+	}
+
+	if len(results) == 0 {
+		return nil, errors.NewNotFoundError(fmt.Sprintf("no users matching status: %s", status))
 	}
 
 	return results, nil

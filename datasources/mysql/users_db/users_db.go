@@ -9,7 +9,7 @@ import (
 
 const (
 	username = "root"
-	password = "6lNxw2NvHA"
+	password = "WFWoxxNNKL"
 	host     = "127.0.0.1:3306"
 	schema   = "users_db"
 )
